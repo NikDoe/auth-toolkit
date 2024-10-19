@@ -6,11 +6,11 @@ export default function Home() {
 		<main
 			className="flex flex-col h-full items-center justify-center bg-lime-300"
 		>
-			<h1 className="text-6xl font-bold mb-4">
+			<h1 className="text-6xl font-bold mb-4 text-center">
 				🚀 Auth NikDOe
 			</h1>
 			<p
-				className="text-lg mb-4"
+				className="text-lg mb-4 text-center"
 			>
 				простой сервис авторизации и регистрации
 			</p>
