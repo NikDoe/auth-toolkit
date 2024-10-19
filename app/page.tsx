@@ -16,7 +16,7 @@ export default function Home() {
 			</p>
 			<LoginButton>
 				<Button variant='outline' size='lg'>
-					Войти в аккаунт
+					форма авторизации
 				</Button>
 			</LoginButton>
 		</main>
