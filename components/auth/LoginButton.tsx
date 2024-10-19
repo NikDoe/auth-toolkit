@@ -9,7 +9,6 @@ interface LoginButtonProps {
 }
 
 function LoginButton({
-	asChild,
 	children,
 	mode = 'redirect'
 }: LoginButtonProps) {
