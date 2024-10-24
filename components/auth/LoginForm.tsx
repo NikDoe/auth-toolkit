@@ -23,11 +23,12 @@ import { FormError } from "@/components/form/FormError"
 import { FormSuccess } from "@/components/form/FormSuccess"
 
 import { login } from '@/actions/login'
+import { ScaleLoader } from "react-spinners"
 
 export const LoginForm = () => {
 	const searchParams = useSearchParams();
 	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked'
-		? 'Email уже используется при логиче через github или google'
+		? 'Email уже используется при логине через другой провайдер'
 		: '';
 
 	const [isPending, startTransition] = useTransition();
@@ -50,8 +51,7 @@ export const LoginForm = () => {
 		startTransition(() => {
 			login(values)
 				.then((data) => {
-					//TODO: 2FA
-					// setSuccess(data.success)
+					setSuccess(data?.success)
 					setError(data?.error)
 				})
 		})

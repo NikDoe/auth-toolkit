@@ -14,7 +14,7 @@ export const BackButton = ({
 	return (
 		<Button
 			asChild
-			variant='link'
+			variant='secondary'
 			className="w-full"
 		>
 			<Link href={href}>
