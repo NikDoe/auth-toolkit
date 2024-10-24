@@ -23,7 +23,6 @@ import { FormError } from "@/components/form/FormError"
 import { FormSuccess } from "@/components/form/FormSuccess"
 
 import { login } from '@/actions/login'
-import { ScaleLoader } from "react-spinners"
 
 export const LoginForm = () => {
 	const searchParams = useSearchParams();
