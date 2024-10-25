@@ -3,11 +3,10 @@
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useSearchParams } from "next/navigation"
 import { useState, useTransition } from "react"
-import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 
-import { LoginSchema } from "@/schemas"
+import { NewPasswordSchema } from "@/schemas"
 
 import { CardWrapper } from "@/components/auth/CardWrapper"
 import {
@@ -22,47 +21,44 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { FormError } from "@/components/form/FormError"
 import { FormSuccess } from "@/components/form/FormSuccess"
+import { newPassword } from "@/actions/new-password"
 
-import { login } from '@/actions/login'
-
-export const LoginForm = () => {
+export const NewPasswordForm = () => {
 	const searchParams = useSearchParams();
-	const urlError = searchParams.get('error') === 'OAuthAccountNotLinked'
-		? 'Email уже используется при логине через другой провайдер'
-		: '';
-
 	const [isPending, startTransition] = useTransition();
 	const [success, setSuccess] = useState<string | undefined>("");
 	const [error, setError] = useState<string | undefined>("");
 
+	const token = searchParams.get('token');
 
-	const form = useForm<z.infer<typeof LoginSchema>>({
-		resolver: zodResolver(LoginSchema),
+	const form = useForm<z.infer<typeof NewPasswordSchema>>({
+		resolver: zodResolver(NewPasswordSchema),
 		defaultValues: {
-			email: '',
 			password: '',
 		},
 	})
 
-	function onSubmit(values: z.infer<typeof LoginSchema>) {
+	function onSubmit(values: z.infer<typeof NewPasswordSchema>) {
 		setSuccess('');
 		setError('');
 
 		startTransition(() => {
-			login(values)
-				.then((data) => {
-					setSuccess(data?.success)
-					setError(data?.error)
+			newPassword(values, token)
+				.then(data => {
+					setSuccess(data.success);
+					setError(data.error);
+				})
+				.catch(() => {
+					setError('Что-то пошло не так при сбросе пароля');
 				})
 		})
 	}
 
 	return (
 		<CardWrapper
-			backButtonHref="/auth/register"
-			backButtonLabel="Нет аккаунта ?"
-			headerlabel="С возвращением 👻"
-			showSocial
+			backButtonHref="/auth/login"
+			backButtonLabel="Вернуться к логину"
+			headerlabel="Придумайте новый пароль"
 		>
 			<Form {...form}>
 				<form
@@ -73,60 +69,35 @@ export const LoginForm = () => {
 						<FormField
 							disabled={isPending}
 							control={form.control}
-							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											type="email"
-											placeholder="example@email.com"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							disabled={isPending}
-							control={form.control}
 							name="password"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Пароль</FormLabel>
+									<FormLabel>Новый пароль</FormLabel>
 									<FormControl>
 										<Input
 											type="password"
-											placeholder="******"
+											placeholder="*******"
 											{...field}
 										/>
 									</FormControl>
 									<FormMessage />
-									<Button
-										variant='link'
-										className="px-0"
-										asChild
-									>
-										<Link href='/auth/reset-password'>
-											забыли пароль?
-										</Link>
-									</Button>
 								</FormItem>
 							)}
 						/>
 					</div>
-					<FormError message={error || urlError} />
+					<FormError message={error} />
 					<FormSuccess message={success} />
 					<Button
 						disabled={isPending}
 						type='submit'
 						className="w-full"
 					>
-						{isPending ? 'Подождите...' : 'Войти в аккаунт'}
+						{isPending ? 'Подождите...' : 'Обновить пароль'}
 					</Button>
 				</form>
 			</Form>
 		</CardWrapper>
 	)
 }
+
+

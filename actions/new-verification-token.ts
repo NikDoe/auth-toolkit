@@ -8,8 +8,6 @@ import { getVerificationTokenByToken } from "@/data/verification-token"
 export const newVerificationToken = async (
 	token: string,
 ) => {
-	console.log('ЛОФВВЛА', token);
-
 	const existingToken = await getVerificationTokenByToken(token);
 
 	if (!existingToken) {

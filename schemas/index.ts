@@ -20,3 +20,15 @@ export const RegisterSchema = z.object({
 		message: 'Минимальная длинна 2 символа'
 	})
 })
+
+export const ResetPasswordSchema = z.object({
+	email: z.string().email({
+		message: 'невалидный email'
+	}),
+})
+
+export const NewPasswordSchema = z.object({
+	password: z.string().min(6, {
+		message: 'Минимальная длинна 6 символов'
+	}),
+})
