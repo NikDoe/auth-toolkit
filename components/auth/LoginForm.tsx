@@ -31,6 +31,7 @@ export const LoginForm = () => {
 		? 'Email уже используется при логине через другой провайдер'
 		: '';
 
+	const [showTwoFactor, setShowTwoFactor] = useState(false);
 	const [isPending, startTransition] = useTransition();
 	const [success, setSuccess] = useState<string | undefined>("");
 	const [error, setError] = useState<string | undefined>("");
@@ -51,8 +52,21 @@ export const LoginForm = () => {
 		startTransition(() => {
 			login(values)
 				.then((data) => {
-					setSuccess(data?.success)
-					setError(data?.error)
+					if (data?.error) {
+						setError(data.error);
+					}
+
+					if (data?.success) {
+						form.reset();
+						setSuccess(data.success);
+					}
+
+					if (data?.twoFactor) {
+						setShowTwoFactor(true);
+					}
+				})
+				.catch(() => {
+					setError('Что-то пошло не так...')
 				})
 		})
 	}
@@ -70,51 +84,74 @@ export const LoginForm = () => {
 					className="flex flex-col gap-y-6"
 				>
 					<div className="flex flex-col gap-y-4">
-						<FormField
-							disabled={isPending}
-							control={form.control}
-							name="email"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Email</FormLabel>
-									<FormControl>
-										<Input
-											type="email"
-											placeholder="example@email.com"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							disabled={isPending}
-							control={form.control}
-							name="password"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Пароль</FormLabel>
-									<FormControl>
-										<Input
-											type="password"
-											placeholder="******"
-											{...field}
-										/>
-									</FormControl>
-									<FormMessage />
-									<Button
-										variant='link'
-										className="px-0"
-										asChild
-									>
-										<Link href='/auth/reset-password'>
-											забыли пароль?
-										</Link>
-									</Button>
-								</FormItem>
-							)}
-						/>
+						{showTwoFactor && (
+							<FormField
+								control={form.control}
+								name="code"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>2FA Код</FormLabel>
+										<FormControl>
+											<Input
+												disabled={isPending}
+												placeholder="123456"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
+						{!showTwoFactor && (
+							<>
+								<FormField
+									control={form.control}
+									name="email"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Email</FormLabel>
+											<FormControl>
+												<Input
+													disabled={isPending}
+													type="email"
+													placeholder="example@email.com"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<FormField
+									control={form.control}
+									name="password"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Пароль</FormLabel>
+											<FormControl>
+												<Input
+													disabled={isPending}
+													type="password"
+													placeholder="******"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+											<Button
+												variant='link'
+												className="px-0"
+												asChild
+											>
+												<Link href='/auth/reset-password'>
+													забыли пароль?
+												</Link>
+											</Button>
+										</FormItem>
+									)}
+								/>
+							</>
+						)}
 					</div>
 					<FormError message={error || urlError} />
 					<FormSuccess message={success} />
@@ -123,7 +160,12 @@ export const LoginForm = () => {
 						type='submit'
 						className="w-full"
 					>
-						{isPending ? 'Подождите...' : 'Войти в аккаунт'}
+						{isPending
+							? 'Подождите...'
+							: showTwoFactor
+								? 'Подвердить код'
+								: 'Войти в аккаунт'
+						}
 					</Button>
 				</form>
 			</Form>
