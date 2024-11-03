@@ -1,22 +1,16 @@
-import { auth, signOut } from "@/auth"
-import { Button } from "@/components/ui/button";
+"use client"
 
-async function SettingsPage() {
-	const session = await auth();
+import { logout } from "@/actions/logout";
+import LogoutButton from "@/components/auth/LogoutButton";
+
+function SettingsPage() {
 
 	return (
-		<div>
-			{JSON.stringify(session)}
-			<form action={
-				async () => {
-					"use server"
-
-					await signOut()
-				}
-			}>
-				<Button>
+		<div className="p-5 rounded-sm border bg-white">
+			<form action={logout}>
+				<LogoutButton>
 					Выйти
-				</Button>
+				</LogoutButton>
 			</form>
 		</div>
 	)
