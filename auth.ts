@@ -7,10 +7,12 @@ import authConfig from "@/auth.config"
 
 import { getUserById } from "@/data/user"
 import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
+import {getUserAccountById} from "@/data/account";
 
 export type ExtendedUser = DefaultSession["user"] & {
 	role: UserRole;
 	isTwoFactorEnabled: boolean;
+	isOAuth: boolean;
 }
 
 declare module "next-auth" {
@@ -67,6 +69,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 				session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
 			}
 
+			if(session.user) {
+				session.user.isOAuth = token.isOAuth as boolean;
+				session.user.name = token.name;
+			}
+
+			if(token.email && session.user) {
+				session.user.email = token.email;
+			}
+
 			return session
 		},
 		async jwt({ token }) {
@@ -76,6 +87,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 			if (!existingUser) return token;
 
+			const existingAccount = await getUserAccountById(existingUser.id);
+
+			token.isOAuth = !!existingAccount;
+			token.name = existingUser.name;
+			token.email = existingUser.email;
 			token.role = existingUser.role;
 			token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
